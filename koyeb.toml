@@ -1,0 +1,21 @@
+[build]
+  type = "docker"
+
+[deploy]
+  type = "web"
+
+[env]
+  SESSION_SECRET = "your-flask-secret-key-here"
+  NODE_ENV = "production"
+
+[health_check]
+  path = "/status"
+  port = 5000
+  grace_period_seconds = 120
+
+[instance]
+  type = "nano"
+
+[ports]
+  - port = 5000
+    protocol = "http"
