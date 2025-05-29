@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - TradingView Chart Capture</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line me-2"></i>
+                TradingView Chart Capture
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">
+                    <i class="fas fa-home me-1"></i>
+                    Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="sticky-top" style="top: 20px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="fas fa-list me-2"></i>
+                                Contents
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <nav class="nav nav-pills flex-column">
+                                <a class="nav-link" href="#overview">Overview</a>
+                                <a class="nav-link" href="#authentication">Authentication</a>
+                                <a class="nav-link" href="#parameters">Parameter Guide</a>
+                                <a class="nav-link" href="#endpoints">Endpoints</a>
+                                <a class="nav-link" href="#errors">Error Handling</a>
+                                <a class="nav-link" href="#examples">Examples</a>
+                                <a class="nav-link" href="#rate-limits">Rate Limits</a>
+                                <a class="nav-link" href="#chart-ids">Chart ID Guide</a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <!-- Overview -->
+                <section id="overview" class="mb-5">
+                    <h2>API Documentation</h2>
+                    <p class="lead">
+                        The TradingView Chart Capture API allows you to programmatically capture screenshots of your personalized TradingView charts.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Base URL:</strong> <code>{{ request.url_root }}api</code>
+                    </div>
+
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Authenticate with TradingView using username/password or session ID</li>
+                        <li>Capture personalized chart screenshots</li>
+                        <li>Support for multiple chart formats and symbols</li>
+                        <li>Configurable chart positioning</li>
+                        <li>Both synchronous and asynchronous capture modes</li>
+                        <li>Rate limiting for fair usage</li>
+                    </ul>
+                </section>
+
+                <!-- Authentication -->
+                <section id="authentication" class="mb-5">
+                    <h3>Authentication</h3>
+                    <p>
+                        Before capturing charts, you must authenticate with TradingView. The API supports two authentication methods:
+                    </p>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <span class="badge bg-success me-2">POST</span>
+                                /api/login
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <h6>Method 1: Username and Password</h6>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{
+  "username": "your_tradingview_username",
+  "password": "your_tradingview_password"
+}</code></pre>
+
+                            <h6 class="mt-3">Method 2: Session ID</h6>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{
+  "sessionid": "your_tradingview_sessionid_cookie"
+}</code></pre>
+
+                            <h6 class="mt-3">Response</h6>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{
+  "status": "success",
+  "message": "Login successful, session stored"
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Parameter Guide -->
+                <section id="parameters" class="mb-5">
+                    <h3>Parameter Usage Guide</h3>
+                    <p>This section provides detailed explanations and examples for all API parameters to help you get the best results from chart captures.</p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-chart-line me-2"></i>
+                                        Chart ID Parameter
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Required for chart capture</strong></p>
+                                    <p>The TradingView chart ID from a published or shared chart URL</p>
+                                    
+                                    <h6>How to get Chart ID:</h6>
+                                    <ul class="small">
+                                        <li>Open your chart in TradingView</li>
+                                        <li>Click "Publish Idea" or "Share" to get a public link</li>
+                                        <li>Extract the ID from the URL (e.g., <code>SPczhWCm</code>)</li>
+                                        <li>Use this ID in the API request</li>
+                                    </ul>
+                                    
+                                    <h6>Example Chart IDs:</h6>
+                                    <ul class="small">
+                                        <li><code>"SPczhWCm"</code> - Sample chart ID</li>
+                                        <li><code>"ABC123def"</code> - Your published chart</li>
+                                    </ul>
+                                    
+                                    <div class="alert alert-warning small">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Chart must be published/shared to be accessible via API
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-arrows-alt me-2"></i>
+                                        Adjustment Parameter
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Optional</strong> - Controls chart positioning</p>
+                                    <p>Number of right arrow key presses to adjust the chart's horizontal position</p>
+                                    
+                                    <h6>Recommended Values:</h6>
+                                    <ul class="small">
+                                        <li><code>0</code> - No adjustment (original position)</li>
+                                        <li><code>15</code> - Slight right adjustment</li>
+                                        <li><code>30</code> - Standard adjustment (default)</li>
+                                        <li><code>50</code> - More right adjustment</li>
+                                        <li><code>100</code> - Significant right shift</li>
+                                    </ul>
+                                    
+                                    <div class="alert alert-info small">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Higher values move the chart view further to the right
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-clock me-2"></i>
+                                        Interval Parameter
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Optional</strong> - Chart timeframe setting</p>
+                                    <p>Sets the time interval for candlesticks/bars on the chart</p>
+                                    
+                                    <h6>Available Options:</h6>
+                                    <div class="row small">
+                                        <div class="col-6">
+                                            <ul>
+                                                <li><code>"1"</code> - 1 minute</li>
+                                                <li><code>"5"</code> - 5 minutes</li>
+                                                <li><code>"15"</code> - 15 minutes</li>
+                                                <li><code>"30"</code> - 30 minutes</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-6">
+                                            <ul>
+                                                <li><code>"60"</code> - 1 hour (default)</li>
+                                                <li><code>"240"</code> - 4 hours</li>
+                                                <li><code>"1D"</code> - 1 day</li>
+                                                <li><code>"1W"</code> - 1 week</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-success small">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        Choose based on your analysis needs: short-term (1-15m) or long-term (1D-1W)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-palette me-2"></i>
+                                        Theme Parameter
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Optional</strong> - Visual appearance setting</p>
+                                    <p>Controls the color scheme of the captured chart</p>
+                                    
+                                    <h6>Available Options:</h6>
+                                    <ul class="small">
+                                        <li><code>"dark"</code> - Dark theme (default)
+                                            <br><small class="text-muted">Black background, ideal for most presentations</small>
+                                        </li>
+                                        <li><code>"light"</code> - Light theme
+                                            <br><small class="text-muted">White background, good for documents</small>
+                                        </li>
+                                    </ul>
+                                    
+                                    <div class="alert alert-info small">
+                                        <i class="fas fa-lightbulb me-1"></i>
+                                        Dark theme is recommended for better contrast and readability
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-file-image me-2"></i>
+                                        Format Parameter
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Optional</strong> - Response format for /capture endpoint</p>
+                                    <p>Determines how the screenshot data is returned</p>
+                                    
+                                    <h6>Available Options:</h6>
+                                    <ul class="small">
+                                        <li><code>"base64"</code> - Base64 encoded image (default)
+                                            <br><small class="text-muted">Good for immediate display or embedding</small>
+                                        </li>
+                                        <li><code>"url"</code> - File URL path
+                                            <br><small class="text-muted">Returns a path to the saved image file</small>
+                                        </li>
+                                    </ul>
+                                    
+                                    <div class="alert alert-success small">
+                                        <i class="fas fa-thumbs-up me-1"></i>
+                                        Use "url" for file storage, "base64" for immediate display
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-comment me-2"></i>
+                                        Message & Delivery
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Optional</strong> - Logging and delivery options</p>
+                                    
+                                    <h6>Message Parameter:</h6>
+                                    <p class="small">Custom text for request logging and tracking purposes</p>
+                                    <code>"message": "Daily BTC analysis"</code>
+                                    
+                                    <h6 class="mt-3">Delivery Parameter (async only):</h6>
+                                    <p class="small">Processing priority for asynchronous captures</p>
+                                    <ul class="small">
+                                        <li><code>"asap"</code> - As soon as possible (default)</li>
+                                        <li><code>"normal"</code> - Standard queue processing</li>
+                                        <li><code>"low"</code> - Lower priority processing</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-cog me-2"></i>
+                                Parameter Combination Examples
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h6 class="text-success">Quick Trading Analysis</h6>
+                                    <pre class="bg-dark text-light p-2 rounded small"><code>{
+  "chart_id": "SPczhWCm",
+  "interval": "5",
+  "adjustment": 50,
+  "ticker": "BTC"
+}</code></pre>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="text-info">Long-term Chart Study</h6>
+                                    <pre class="bg-dark text-light p-2 rounded small"><code>{
+  "chart_id": "ABC123def",
+  "interval": "1D",
+  "adjustment": 100,
+  "theme": "light",
+  "ticker": "AAPL"
+}</code></pre>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="text-warning">Presentation Ready</h6>
+                                    <pre class="bg-dark text-light p-2 rounded small"><code>{
+  "chart_id": "XYZ789ghi",
+  "interval": "1W",
+  "adjustment": 150,
+  "theme": "dark",
+  "ticker": "EURUSD"
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Endpoints -->
+                <section id="endpoints" class="mb-5">
+                    <h3>API Endpoints</h3>
+
+                    <!-- Health Check -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <span class="badge bg-info me-2">GET</span>
+                                /api/health
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Check if the API service is running.</p>
+                            <h6>Response</h6>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{
+  "status": "healthy",
+  "timestamp": "2024-01-01T12:00:00",
+  "service": "TradingView Chart Capture API"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Session Status -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <span class="badge bg-info me-2">GET</span>
+                                /api/session-status
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Check current TradingView session status.</p>
+                            <h6>Response</h6>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{
+  "has_valid_session": true,
+  "session_id": "abcd1234...",
+  "timestamp": "2024-01-01T12:00:00"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Chart Capture -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <span class="badge bg-success me-2">POST</span>
+                                /api/capture
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Capture a TradingView chart screenshot using chart ID (synchronous).</p>
+                            
+                            <h6>Request Body</h6>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{
+  "chart_id": "SPczhWCm",        // Required: TradingView chart ID
+  "adjustment": 30,              // Optional: Right arrow key presses (default: 30)
+  "interval": "60",              // Optional: Chart timeframe (default: "60")
+  "theme": "dark"                // Optional: "dark" or "light" (default: "dark")
+}</code></pre>
+
+                            <h6>Response</h6>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{
+  "status": "success",
+  "chart_id": "SPczhWCm",
+  "adjustment": 30,
+  "interval": "60",
+  "theme": "dark",
+  "screenshot_path": "charts/test_chart_SPczhWCm_123456789.png",
+  "timestamp": "2025-05-28T12:00:00"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Refresh Session -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <span class="badge bg-warning me-2">POST</span>
+                                /api/refresh-session
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Clear current session and require re-login. Useful when session expires or needs to be reset.</p>
+                            
+                            <h6>Request</h6>
+                            <p>No request body required.</p>
+
+                            <h6>Response</h6>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{
+  "status": "success",
+  "message": "Session cleared successfully. Please login again to get a new session.",
+  "requires_login": true
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Test Capture -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <span class="badge bg-info me-2">GET</span>
+                                /api/test-capture
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Quick test capture with predefined chart ID for testing purposes.</p>
+
+                            <h6>Response</h6>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{
+  "status": "success",
+  "chart_id": "SPczhWCm",
+  "adjustment": 30,
+  "interval": "60",
+  "theme": "dark",
+  "screenshot_path": "charts/test_chart_SPczhWCm_123456789.png",
+  "timestamp": "2025-05-28T12:00:00"
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Session Status -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <span class="badge bg-info me-2">GET</span>
+                                /api/session-status
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Check current session status and validity.</p>
+                            
+                            <h6>Request</h6>
+                            <p>No request body required.</p>
+
+                            <h6>Response</h6>
+                            <pre class="bg-dark text-light p-3 rounded"><code>{
+  "has_valid_session": true,
+  "session_id": "zpmvh8dz...",
+  "timestamp": "2025-05-28T12:00:00"
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Error Handling -->
+                <section id="errors" class="mb-5">
+                    <h3>Error Handling</h3>
+                    <p>The API returns appropriate HTTP status codes and error messages:</p>
+
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Status Code</th>
+                                    <th>Description</th>
+                                    <th>Example Response</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-danger">400</span></td>
+                                    <td>Bad Request</td>
+                                    <td><code>{"error": "symbol parameter is required (e.g., BINANCE:BTCUSDT)"}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-warning">401</span></td>
+                                    <td>Unauthorized</td>
+                                    <td><code>{"error": "No valid session found. Please login first."}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-warning">429</span></td>
+                                    <td>Rate Limited</td>
+                                    <td><code>{"error": "Rate limit exceeded. Try again later."}</code></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-danger">500</span></td>
+                                    <td>Server Error</td>
+                                    <td><code>{"error": "Capture failed: ..."}</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="mb-5">
+                    <h3>Usage Examples</h3>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Python Example</h5>
+                        </div>
+                        <div class="card-body">
+                            <pre class="bg-dark text-light p-3 rounded"><code>import requests
+
+# Base URL
+base_url = "{{ request.url_root }}api"
+
+# Step 1: Login
+login_data = {
+    "username": "your_username",
+    "password": "your_password"
+}
+response = requests.post(f"{base_url}/login", json=login_data)
+print(response.json())
+
+# Step 2: Capture chart
+capture_data = {
+    "chart_id": "SPczhWCm",
+    "adjustment": 30,
+    "interval": "60",
+    "theme": "dark"
+}
+response = requests.post(f"{base_url}/capture", json=capture_data)
+result = response.json()
+print(f"Screenshot path: {result['screenshot_path']}")
+</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">cURL Example</h5>
+                        </div>
+                        <div class="card-body">
+                            <pre class="bg-dark text-light p-3 rounded"><code># Login
+curl -X POST {{ request.url_root }}api/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "your_username", "password": "your_password"}'
+
+# Capture chart
+curl -X POST {{ request.url_root }}api/capture \
+  -H "Content-Type: application/json" \
+  -d '{"chart_id": "SPczhWCm", "adjustment": 30, "interval": "60", "theme": "dark"}'
+</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Rate Limits -->
+                <section id="rate-limits" class="mb-5">
+                    <h3>Rate Limits</h3>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-clock me-2"></i>
+                        The API implements rate limiting to ensure fair usage and service stability.
+                    </div>
+
+                    <ul>
+                        <li><strong>Rate Limit:</strong> 10 requests per minute per IP address</li>
+                        <li><strong>Reset:</strong> Rate limit counters reset every minute</li>
+                        <li><strong>Headers:</strong> Rate limit information is included in error responses</li>
+                    </ul>
+
+                    <p>
+                        When rate limited, the API returns a <code>429 Too Many Requests</code> status with details about when to retry.
+                    </p>
+                </section>
+
+                <!-- Chart IDs -->
+                <section id="chart-ids" class="mb-5">
+                    <h3>Chart ID Guide</h3>
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>How to Get Chart ID:</h6>
+                            <ol>
+                                <li>Open your chart in TradingView</li>
+                                <li>Set up your indicators, drawings, and preferences</li>
+                                <li>Click "Publish Idea" or "Share" to make it public</li>
+                                <li>Extract the chart ID from the URL (e.g., <code>SPczhWCm</code>)</li>
+                                <li>Use this ID in the API request</li>
+                            </ol>
+                            
+                            <h6>Chart URL Examples:</h6>
+                            <ul>
+                                <li><code>https://www.tradingview.com/chart/SPczhWCm/</code> → Chart ID: <code>SPczhWCm</code></li>
+                                <li><code>https://www.tradingview.com/chart/ABC123def/</code> → Chart ID: <code>ABC123def</code></li>
+                            </ul>
+                            
+                            <h6>Supported Timeframes:</h6>
+                            <ul>
+                                <li><code>1</code> - 1 minute</li>
+                                <li><code>5</code> - 5 minutes</li>
+                                <li><code>15</code> - 15 minutes</li>
+                                <li><code>60</code> - 1 hour (default)</li>
+                                <li><code>240</code> - 4 hours</li>
+                                <li><code>1D</code> - 1 day</li>
+                                <li><code>1W</code> - 1 week</li>
+                            </ul>
+                            
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Important:</strong> Chart must be published/shared publicly to be accessible via API.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">
+                <i class="fas fa-chart-line me-2"></i>
+                TradingView Chart Capture API - Professional Chart Automation Service
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
