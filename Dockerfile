@@ -1,24 +1,24 @@
-# Use Python base image with Node.js
+# Use Python base image with Node.js support
 FROM python:3.11-slim
 
-# Install Node.js and system dependencies
+# Install Node.js and required system packages
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
     wget \
-    unzip \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Chrome dependencies and Chrome
+# Install Chromium for Puppeteer
 RUN apt-get update && apt-get install -y \
-    wget \
-    ca-certificates \
+    chromium \
     fonts-liberation \
+    libappindicator3-1 \
     libasound2 \
     libatk-bridge2.0-0 \
     libatk1.0-0 \
-    libatspi2.0-0 \
     libcups2 \
     libdbus-1-3 \
     libdrm2 \
@@ -29,37 +29,31 @@ RUN apt-get update && apt-get install -y \
     libxdamage1 \
     libxrandr2 \
     xdg-utils \
-    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables for Puppeteer
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files first for better caching
-COPY requirements.txt .
+# Copy package files
 COPY package*.json ./
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt ./
 
 # Install Node.js dependencies
 RUN npm install
 
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
 # Copy application code
 COPY . .
-
-# Create charts directory
-RUN mkdir -p charts
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-ENV NODE_ENV=production
 
 # Expose port
 EXPOSE 5000
 
 # Start command
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "main:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--timeout", "120", "main:app"]
