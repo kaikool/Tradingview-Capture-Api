@@ -12,9 +12,9 @@ class TradingViewCapture {
         console.log('--->Setup Puppeteer start:', new Date().toISOString());
         
         try {
-            this.browser = await puppeteer.launch({
+            // Configuration for deployment environments
+            const launchOptions = {
                 headless: true,
-                executablePath: '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium-browser',
                 args: [
                     '--no-sandbox',
                     '--disable-setuid-sandbox',
@@ -25,9 +25,22 @@ class TradingViewCapture {
                     '--disable-gpu',
                     '--disable-extensions',
                     '--disable-default-apps',
-                    '--window-size=1280,720'
+                    '--window-size=1280,720',
+                    '--disable-background-timer-throttling',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding'
                 ]
-            });
+            };
+            
+            // Use system Chromium if available (for deployment)
+            if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+                launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+            } else {
+                // Fallback for local development
+                launchOptions.executablePath = '/nix/store/zi4f80l169xlmivz8vja8wlphq74qqk0-chromium-125.0.6422.141/bin/chromium-browser';
+            }
+            
+            this.browser = await puppeteer.launch(launchOptions);
             
             this.page = await this.browser.newPage();
             await this.page.setViewport({ width: 1280, height: 720 });
