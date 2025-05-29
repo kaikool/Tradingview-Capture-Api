@@ -1,0 +1,25 @@
+{
+  "name": "TradingView Capture API",
+  "description": "TradingView chart capture service with Node.js and Python",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "env": {
+    "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD": {
+      "description": "Skip Puppeteer Chromium download",
+      "value": "true"
+    },
+    "PUPPETEER_EXECUTABLE_PATH": {
+      "description": "Path to system Chromium",
+      "value": "/usr/bin/chromium-browser"
+    }
+  },
+  "scripts": {
+    "postdeploy": "npm install && pip install -r requirements.txt"
+  }
+}
